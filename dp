@@ -1,0 +1,161 @@
+// Here is the top-down approach of
+// dynamic programming
+//Knapsack can be used as a base for any resource allocation problem like finding
+maximum sum sub array, coin changing problem
+#include <bits/stdc++.h>
+using namespace std;
+
+// Returns the value of maximum profit
+int knapSackRec(int W, int wt[],
+				int val[], int i,
+				int** dp)
+{
+	// base condition
+	if (i < 0)
+		return 0;
+	if (dp[i][W] != -1)
+		return dp[i][W];
+
+	if (wt[i] > W) {
+
+		// Store the value of function call
+		// stack in table before return
+		dp[i][W] = knapSackRec(W, wt,
+							val, i - 1,
+							dp);
+		return dp[i][W];
+	}
+	else {
+		// Store value in a table before return
+		dp[i][W] = max(val[i]
+					+ knapSackRec(W - wt[i],
+								wt, val,
+								i - 1, dp),
+					knapSackRec(W, wt, val,
+								i - 1, dp));
+
+		// Return value of table after storing
+		return dp[i][W];
+	}
+}
+
+int knapSack(int W, int wt[], int val[], int n)
+{
+	// double pointer to declare the
+	// table dynamically
+	int** dp;
+	dp = new int*[n];
+
+	// loop to create the table dynamically
+	for (int i = 0; i < n; i++)
+		dp[i] = new int[W + 1];
+
+	// loop to initially filled the
+	// table with -1
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < W + 1; j++)
+			dp[i][j] = -1;
+	return knapSackRec(W, wt, val, n - 1, dp);
+}
+
+// Driver Code
+int main()
+{
+	int val[] = { 60, 100, 120 };
+	int wt[] = { 10, 20, 30 };
+	int W = 50;
+	int n = sizeof(val) / sizeof(val[0]);
+	cout << knapSack(W, wt, val, n);
+	return 0;
+}
+
+--------------------------------------------
+//A frog is crossing a river. The river is divided into x units and at each unit there may or
+may not exist a stone. The frog can jump on a stone, but it must not jump into the water.
+Given a list of stones' positions (in units) in sorted ascending order, determine if the frog is
+able to cross the river by landing on the last stone. Initially, the frog is on the first stone and
+assume the first jump must be 1 unit.
+If the frog's last jump was k units, then its next jump must be either k - 1, k, or k + 1 units.
+Note that the frog can only jump in the forward direction.
+Note:
+ The number of stones is ≥ 2 and is < 1,100.
+ Each stone's position will be a non-negative integer < 231.
+ The first stone's position is always 0.
+
+
+
+
+
+
+
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long int lli;
+class Solution {
+public:
+   unordered_map < lli, int > visited;
+   bool canCross(vector<int>& stones, int pos = 0, int k = 0) {
+      lli key = pos | k << 11;
+      if(visited.find(key) != visited.end())return visited[key];
+      for(int i = pos + 1; i < stones.size(); i++){
+         int gap = stones[i] - stones[pos];
+         if(gap < k - 1)continue;
+         if(gap > k + 1){
+            return visited[key] = false;
+         }
+         if(canCross(stones, i, gap))return visited[key] = true;
+      }
+      return visited[key] = (pos == stones.size() - 1);
+   }
+};
+main(){
+   Solution ob;
+   vector<int> v = {0,1,3,5,6,8,12,17};
+   cout << (ob.canCross(v));
+}
+-------------------------------------------------
+//You are a freelance contractor and your available jobs change weekly. The jobs are split
+into two groups, ls and hs. If you choose a job from hs, you must prepare the week
+beforehand by taking no job. Ls jobs require no such preparation.
+Determine your optimal plan of working, given two arrays l and h of size n where n is the
+amount of weeks.
+
+
+def best_income(low, high):
+n = len(low)
+dynamic programming example: high- and low-stress jobs 5
+low = [0] + low
+high = [0] + high
+# Initialize an array of booleans to keep track of whether the
+# optimal choice is to take the high-stress job at week i (if we
+# only work weeks 1..i).
+take_high_job = [False] * (n+1)
+opt = [0] * (n+1)
+opt[1] = max(low[1], high[1])
+# We should take the high-stress job at week 1 iff it pays more.
+take_high_job[1] = (high[1] > low[1])
+for i in range(2, n+1):
+low_total = low[i] + opt[i-1]
+high_total = high[i] + opt[i-2]
+opt[i] = max(low_total, high_total)
+# Record which choice produced the higher total
+take_high_job[i] = high_total > low_total
+# Now, to produce a work schedule, work backwards from the end
+# Start at week n
+w = n
+schedule = []
+while w > 0:
+# If we should take the high-stress job at week w, schedule it
+# and a week off, and proceed to look at week w-2 next
+if take_high_job[w]:
+schedule = ['off', 'HI'] + schedule
+w -= 2
+# Otherwise schedule the low-stress job and look at week w-1 next
+else:
+schedule = ['LO'] + schedule
+w -= 1
+return (opt[n], schedule)
+# Example:
+
+# >>> best_income([2,2,1,7,5,20,3,19,10,13], [1,5,10,100,23,20,5,21,30,30])
+# (182, ['off', 'HI', 'off', 'HI', 'LO', 'LO', 'LO', 'LO', 'off', 'HI'])
